@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Admin · Smart Hire AI{% endblock %}
+{% block content %}
+<h1>Admin dashboard</h1>
+<div class="grid g4" style="grid-template-columns: repeat(6, 1fr)">
+  {% for label, value in [('Users', totals.users), ('Companies', totals.companies), ('Candidates', totals.candidates), ('Jobs', totals.jobs), ('Applications', totals.applications), ('Interviews', totals.interviews)] %}
+  <div class="card stat" style="margin:0"><b>{{ value }}</b><span>{{ label }}</span></div>
+  {% endfor %}
+</div>
+
+<div class="card" style="margin-top:20px">
+  <h2>Company statistics</h2>
+  <p class="muted small">From the view <code>v_company_stats</code>.</p>
+  <div class="scroll"><table>
+    <tr><th>Company</th><th>Industry</th><th>Open jobs</th><th>Applications</th><th>Avg match</th><th>Selected</th></tr>
+    {% for c in companies %}
+    <tr><td><b>{{ c.company }}</b><div class="muted small">{{ c.location }}</div></td><td>{{ c.industry }}</td><td>{{ c.open_jobs }}</td>
+        <td>{{ c.total_applications }}</td><td>{{ c.avg_match_score if c.avg_match_score is not none else '-' }}%</td><td>{{ c.selected }}</td></tr>
+    {% endfor %}
+  </table></div>
+</div>
+
+<div class="grid g2">
+  <div class="card">
+    <h2>Applications by status</h2>
+    <table><tr><th>Status</th><th>Total</th></tr>
+      {% for s in statuses %}<tr><td><span class="badge {{ s.status }}">{{ s.status }}</span></td><td>{{ s.total }}</td></tr>{% endfor %}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Most demanded skills</h2>
+    <table><tr><th>Skill</th><th>Jobs needing it</th></tr>
+      {% for s in top_skills %}<tr><td>{{ s.skill_name }}</td><td>{{ s.total }}</td></tr>{% endfor %}
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Recent status changes</h2>
+  <p class="muted small">Written automatically by the <code>trg_application_after_update</code> trigger into <code>application_log</code>.</p>
+  <div class="scroll"><table>
+    <tr><th>When</th><th>Candidate</th><th>Job</th><th>Change</th></tr>
+    {% for l in log %}
+    <tr><td>{{ l.changed_at }}</td><td>{{ l.candidate }}</td><td>{{ l.title }} · {{ l.company }}</td>
+        <td><span class="badge {{ l.old_status }}">{{ l.old_status }}</span> &rarr; <span class="badge {{ l.new_status }}">{{ l.new_status }}</span></td></tr>
+    {% endfor %}
+  </table></div>
+</div>
+{% endblock %}

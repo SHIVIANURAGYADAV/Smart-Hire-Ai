@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}DBMS Demo · Smart Hire AI{% endblock %}
+{% block content %}
+<h1>DBMS concepts - live demo</h1>
+<p class="muted">Each box below runs a real query on the database right now. Use this page in your viva: show the concept, the SQL, and the result.</p>
+{% for r in results %}
+<div class="card">
+  <span class="tag">{{ r.concept }}</span>
+  <h3 style="margin-top:10px">{{ r.text }}</h3>
+  <pre class="sql">{{ r.sql }}</pre>
+  <div class="scroll"><table>
+    <tr>{% for c in r.cols %}<th>{{ c }}</th>{% endfor %}</tr>
+    {% for row in r.rows %}<tr>{% for c in r.cols %}<td>{{ row[c] }}</td>{% endfor %}</tr>
+    {% else %}<tr><td class="muted">No rows.</td></tr>{% endfor %}
+  </table></div>
+</div>
+{% endfor %}
+{% endblock %}

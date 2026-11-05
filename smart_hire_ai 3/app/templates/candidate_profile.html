@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Edit profile · Smart Hire AI{% endblock %}
+{% block content %}
+<div class="card" style="max-width:760px;margin:0 auto">
+  <h2>Edit profile &amp; skills</h2>
+  <p class="muted small">When you save, the database recalculates the match score of all your applications.</p>
+  <form method="post">
+    <div class="grid g3">
+      <div><label>Experience (years)</label><input type="number" name="experience" min="0" step="0.5" value="{{ profile.experience_years }}"></div>
+      <div><label>Education</label><input type="text" name="education" value="{{ profile.education }}"></div>
+      <div><label>City</label><input type="text" name="location" value="{{ profile.location }}"></div>
+    </div>
+    <label>Resume link</label><input type="text" name="resume_link" value="{{ profile.resume_link or '' }}">
+    <label>Skills</label>
+    {% for cat, items in skills|groupby('category') %}
+      <div class="cat">{{ cat }}</div>
+      <div class="skillbox">{% for s in items %}
+        <label><input type="checkbox" name="skills" value="{{ s.skill_id }}" {{ 'checked' if s.skill_id in mine }}> {{ s.skill_name }}</label>
+      {% endfor %}</div>
+    {% endfor %}
+    <p style="margin-top:20px"><button class="btn orange" type="submit">Save</button>
+       <a class="btn ghost" href="{{ url_for('candidate_dashboard') }}">Cancel</a></p>
+  </form>
+</div>
+{% endblock %}

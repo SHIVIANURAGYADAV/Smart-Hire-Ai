@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Login · Smart Hire AI{% endblock %}
+{% block content %}
+<div class="grid g2">
+  <div class="card">
+    <h2>Log in</h2>
+    <form method="post">
+      <label>Email</label><input type="email" name="email" required autofocus>
+      <label>Password</label><input type="password" name="password" required>
+      <p><button class="btn" type="submit">Log in</button>
+         <a class="small" style="margin-left:12px" href="{{ url_for('signup') }}">Create an account</a></p>
+    </form>
+  </div>
+  <div class="card">
+    <h3>Demo accounts</h3>
+    <p class="small muted">Password for candidates and recruiters: <b>password123</b></p>
+    <table class="small">
+      <tr><th>Role</th><th>Email</th></tr>
+      <tr><td>Candidate</td><td>aarav.sharma@demo.com</td></tr>
+      <tr><td>Recruiter (TCS)</td><td>hr.tcs@demo.com</td></tr>
+      <tr><td>Recruiter (Google)</td><td>hr.google@demo.com</td></tr>
+      <tr><td>Admin (<b>admin123</b>)</td><td>admin@demo.com</td></tr>
+    </table>
+    <p class="small muted">Other recruiters: hr.infosys, hr.wipro, hr.hcl, hr.accenture, hr.microsoft, hr.amazon, hr.techm, hr.cognizant (all @demo.com).</p>
+  </div>
+</div>
+{% endblock %}

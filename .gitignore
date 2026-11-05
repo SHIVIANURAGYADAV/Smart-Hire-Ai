@@ -1,0 +1,37 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.vscode/
+.DS_Store
+**/.DS_Store
+__MACOSX/
+._*
+**/._*
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# VS Code
+.vscode/
+
+# macOS unwanted files
+.DS_Store
+**/.DS_Store
+__MACOSX/
+._*
+**/._*
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

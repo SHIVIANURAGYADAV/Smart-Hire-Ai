@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import score %}
+{% block title %}My Dashboard · Smart Hire AI{% endblock %}
+{% block content %}
+<div class="grid g2" style="grid-template-columns: 1fr 2fr">
+  <div class="card">
+    <h2>{{ profile.name }}</h2>
+    <div class="muted small">{{ profile.email }}</div>
+    <p style="margin-top:14px">{{ profile.education }}<br>{{ profile.experience_years|float|round(1) }} years experience<br>{{ profile.location }}</p>
+    {% if profile.resume_link %}<p><a href="{{ profile.resume_link }}" target="_blank" rel="noopener">View resume</a></p>{% endif %}
+    <h3>My skills</h3>
+    {% for s in my_skills %}<span class="chip">{{ s.skill_name }}</span>{% else %}<p class="muted small">No skills added yet.</p>{% endfor %}
+    <p style="margin-top:16px"><a class="btn ghost small" href="{{ url_for('candidate_profile') }}">Edit profile &amp; skills</a></p>
+  </div>
+
+  <div class="card">
+    <h2>Recommended for you</h2>
+    <p class="muted small">Open jobs where your skills match best (from the view <code>v_candidate_job_match</code>).</p>
+    {% for r in recommended %}
+    <div class="job">
+      <div>
+        <h3><a href="{{ url_for('job_detail', job_id=r.job_id) }}">{{ r.title }}</a></h3>
+        <div class="muted small">{{ r.company }} · {{ r.location }} · ₹{{ r.salary_lpa|float|round(1) }} LPA</div>
+      </div>
+      <div class="side">{{ score(r.match_score) }}</div>
+    </div>
+    {% else %}<p class="muted">You have applied to every open job. Great!</p>{% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <h2>My applications ({{ applications|length }})</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Job</th><th>Company</th><th>Applied</th><th>Match</th><th>Status</th><th>Interview</th></tr>
+    {% for a in applications %}
+    <tr>
+      <td><a href="{{ url_for('job_detail', job_id=a.job_id) }}">{{ a.title }}</a></td>
+      <td>{{ a.company }}</td>
+      <td>{{ a.applied_date }}</td>
+      <td>{{ score(a.match_score) }}</td>
+      <td><span class="badge {{ a.status }}">{{ a.status }}</span></td>
+      <td>{% if a.interview_date %}{{ a.interview_date.strftime('%d %b, %H:%M') }} · {{ a.mode }} · {{ a.result }}{% else %}<span class="muted">-</span>{% endif %}</td>
+    </tr>
+    {% else %}<tr><td colspan="6" class="muted">You have not applied to any job yet.</td></tr>{% endfor %}
+  </table>
+  </div>
+</div>
+{% endblock %}

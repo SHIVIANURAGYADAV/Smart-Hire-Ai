@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_macros.html" import score %}
+{% block content %}
+<div class="hero">
+  <h1>Hiring that matches skills, not luck</h1>
+  <p>Browse jobs from 10 top companies. Every application gets a match score from the database, and recruiters see the best candidates first.</p>
+  <div class="grid g4" style="margin-top:22px">
+    <div class="stat"><b>{{ stats.companies }}</b><span>Companies</span></div>
+    <div class="stat"><b>{{ stats.open_jobs }}</b><span>Open jobs</span></div>
+    <div class="stat"><b>{{ stats.candidates }}</b><span>Candidates</span></div>
+    <div class="stat"><b>{{ stats.applications }}</b><span>Applications</span></div>
+  </div>
+</div>
+
+<form class="card filters" method="get">
+  <div><label>Search</label><input type="text" name="q" value="{{ f.q }}" placeholder="Job title or company"></div>
+  <div><label>Company</label>
+    <select name="company"><option value="">All</option>
+      {% for c in companies %}<option value="{{ c.company_id }}" {{ 'selected' if f.company == c.company_id|string }}>{{ c.name }}</option>{% endfor %}
+    </select></div>
+  <div><label>Location</label>
+    <select name="location"><option value="">All</option>
+      {% for l in locations %}<option {{ 'selected' if f.location == l.location }}>{{ l.location }}</option>{% endfor %}
+    </select></div>
+  <div><label>Skill</label>
+    <select name="skill"><option value="">Any</option>
+      {% for s in skills %}<option {{ 'selected' if f.skill == s.skill_name }}>{{ s.skill_name }}</option>{% endfor %}
+    </select></div>
+  <div><label>Sort by</label>
+    <select name="sort">
+      <option value="new" {{ 'selected' if f.sort == 'new' }}>Newest</option>
+      <option value="salary" {{ 'selected' if f.sort == 'salary' }}>Highest salary</option>
+      {% if session.role == 'candidate' %}<option value="match" {{ 'selected' if f.sort == 'match' }}>Best match for me</option>{% endif %}
+    </select></div>
+  <button class="btn" type="submit">Search</button>
+</form>
+
+<div class="card">
+  <h2>{{ jobs|length }} open job{{ '' if jobs|length == 1 else 's' }}</h2>
+  {% if not session.user_id %}<p class="muted small">Log in as a candidate to see your match score for every job.</p>{% endif %}
+  {% for j in jobs %}
+  <div class="job">
+    <div>
+      <h3><a href="{{ url_for('job_detail', job_id=j.job_id) }}">{{ j.title }}</a></h3>
+      <div class="muted small">{{ j.company }} · {{ j.location }} · {{ j.experience_required|float|round(1) }}+ yrs · ₹{{ j.salary_lpa|float|round(1) }} LPA</div>
+      <div style="margin-top:8px">
+        {% for s in j.required_skills.split(', ') %}<span class="chip">{{ s }}</span>{% endfor %}
+      </div>
+    </div>
+    <div class="side">
+      {% if session.role == 'candidate' %}
+        {% if j.job_id in applied %}<span class="badge Applied">Applied</span>
+        {% else %}<div class="small muted">Your match</div>{{ score(scores.get(j.job_id, 0)) }}{% endif %}
+      {% endif %}
+      <div class="small muted" style="margin-top:6px">{{ j.applicants }} applicant{{ '' if j.applicants == 1 else 's' }}</div>
+    </div>
+  </div>
+  {% else %}
+  <p class="muted">No jobs match these filters.</p>
+  {% endfor %}
+</div>
+{% endblock %}

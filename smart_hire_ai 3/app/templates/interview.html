@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Interview · {{ row.candidate_name }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px;margin:0 auto">
+  <h2>Interview for {{ row.candidate_name }}</h2>
+  <p class="muted">{{ row.job_title }} · match {{ '%.0f'|format(row.match_score|float) }}%</p>
+  <form method="post">
+    <label>Date and time</label>
+    <input type="datetime-local" name="interview_date" required
+           value="{{ interview.interview_date.strftime('%Y-%m-%dT%H:%M') if interview else '' }}">
+    <div class="grid g2">
+      <div><label>Mode</label>
+        <select name="mode">{% for m in ['Online', 'Offline'] %}<option {{ 'selected' if interview and interview.mode == m }}>{{ m }}</option>{% endfor %}</select></div>
+      <div><label>Result</label>
+        <select name="result">{% for r in ['Pending', 'Passed', 'Failed'] %}<option {{ 'selected' if interview and interview.result == r }}>{{ r }}</option>{% endfor %}</select></div>
+    </div>
+    <label>Feedback</label><input type="text" name="feedback" maxlength="255" value="{{ interview.feedback or '' if interview else '' }}">
+    <p style="margin-top:20px"><button class="btn orange" type="submit">Save interview</button>
+       <a class="btn ghost" href="{{ url_for('job_candidates', job_id=row.job_id) }}">Cancel</a></p>
+  </form>
+</div>
+{% endblock %}

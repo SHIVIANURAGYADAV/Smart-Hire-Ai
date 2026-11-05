@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ job.title }} · {{ job.company }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('index') }}">&larr; All jobs</a></p>
+<div class="grid g2" style="grid-template-columns: 2fr 1fr">
+  <div class="card">
+    <div class="row between">
+      <div>
+        <h1>{{ job.title }}</h1>
+        <div class="muted">{{ job.company }} · {{ job.industry }}</div>
+      </div>
+      <span class="badge {{ job.status }}">{{ job.status|capitalize }}</span>
+    </div>
+    <p style="margin-top:16px">{{ job.description or 'No description given.' }}</p>
+    <div class="grid g3" style="margin-top:18px">
+      <div><div class="muted small">Location</div><b>{{ job.location }}</b></div>
+      <div><div class="muted small">Experience</div><b>{{ job.experience_required|float|round(1) }}+ years</b></div>
+      <div><div class="muted small">Salary</div><b>₹{{ job.salary_lpa|float|round(1) }} LPA</b></div>
+    </div>
+    <h3 style="margin-top:22px">Required skills</h3>
+    {% for s in skills %}
+      {% if is_candidate %}<span class="chip {{ 'have' if s.has_it else 'miss' }}">{{ s.skill_name }} {{ '✓' if s.has_it else '✗' }}</span>
+      {% else %}<span class="chip">{{ s.skill_name }}</span>{% endif %}
+    {% endfor %}
+    {% if is_candidate %}<p class="muted small">Green = you have it, red = you are missing it.</p>{% endif %}
+  </div>
+
+  <div class="card">
+    {% if is_candidate %}
+      <h3>Your match</h3>
+      <div style="font-size:38px;font-weight:700;color:var(--navy)">{{ '%.0f'|format(score|float) }}%</div>
+      <div class="bar"><i style="width: {{ score|float }}%"></i></div>
+      <p class="muted small">matching skills ÷ required skills × 100</p>
+      {% if my_app %}
+        <p>You applied on {{ my_app.applied_date }}.<br>Status: <span class="badge {{ my_app.status }}">{{ my_app.status }}</span></p>
+      {% elif job.status == 'open' %}
+        <form method="post" action="{{ url_for('apply_job', job_id=job.job_id) }}">
+          <button class="btn orange" type="submit" style="width:100%">Apply now</button>
+        </form>
+      {% else %}<p class="muted">This job is closed.</p>{% endif %}
+    {% elif session.role == 'recruiter' or session.role == 'admin' %}
+      <h3>Applicants</h3>
+      <div style="font-size:38px;font-weight:700;color:var(--navy)">{{ job.applicants }}</div>
+      {% if session.role == 'recruiter' and session.company_id == job.company_id %}
+        <a class="btn" href="{{ url_for('job_candidates', job_id=job.job_id) }}">See ranked candidates</a>
+      {% endif %}
+    {% else %}
+      <h3>Want to apply?</h3>
+      <p class="muted">Log in as a candidate to see your match score and apply.</p>
+      <a class="btn" href="{{ url_for('login', next=request.path) }}">Log in</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

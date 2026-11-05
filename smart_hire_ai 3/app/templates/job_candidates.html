@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% from "_macros.html" import score %}
+{% block title %}Ranked candidates · {{ job.title }}{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('recruiter_dashboard') }}">&larr; Back to my jobs</a></p>
+<div class="card">
+  <div class="row between">
+    <div>
+      <h1>{{ job.title }}</h1>
+      <div class="muted">{{ job.location }} · ₹{{ job.salary_lpa|float|round(1) }} LPA · <span class="badge {{ job.status }}">{{ job.status }}</span></div>
+    </div>
+    <div class="small muted">Required skills:<br>{% for s in required %}<span class="chip">{{ s }}</span>{% endfor %}</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Candidates ranked by match score ({{ ranked|length }})</h2>
+  <p class="muted small">Data comes from the view <code>v_ranked_candidates</code>. Ties are broken by experience.</p>
+  <div class="scroll">
+  <table>
+    <tr><th>#</th><th>Candidate</th><th>Match</th><th>Skills</th><th>Status</th><th>Interview</th><th>Action</th></tr>
+    {% for r in ranked %}
+    <tr>
+      <td><span class="rank {{ 'r1' if r.rank_no == 1 }}">{{ r.rank_no }}</span></td>
+      <td><b>{{ r.candidate_name }}</b><div class="muted small">{{ r.education }} · {{ r.experience_years|float|round(1) }} yrs · {{ r.candidate_location }}</div>
+          {% if r.resume_link %}<a class="small" href="{{ r.resume_link }}" target="_blank" rel="noopener">Resume</a>{% endif %}</td>
+      <td>{{ score(r.match_score) }}<div class="bar"><i style="width: {{ r.match_score|float }}%"></i></div></td>
+      <td>{% for s in r.have %}<span class="chip have">{{ s }}</span>{% endfor %}{% for s in r.missing %}<span class="chip miss">{{ s }}</span>{% endfor %}</td>
+      <td><span class="badge {{ r.status }}">{{ r.status }}</span></td>
+      <td>{% if r.interview_date %}{{ r.interview_date.strftime('%d %b, %H:%M') }}<div class="small muted">{{ r.mode }} · {{ r.result }}</div>{% else %}<span class="muted">-</span>{% endif %}
+          <div><a class="small" href="{{ url_for('schedule_interview', app_id=r.application_id) }}">{{ 'Edit' if r.interview_date else 'Schedule' }}</a></div></td>
+      <td>
+        <form method="post" action="{{ url_for('set_status', app_id=r.application_id) }}">
+          <select name="status" onchange="this.form.submit()" style="min-width:130px">
+            {% for st in ['Applied', 'Shortlisted', 'Rejected', 'Selected'] %}
+              <option {{ 'selected' if st == r.status }}>{{ st }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="7" class="muted">Nobody has applied yet.</td></tr>{% endfor %}
+  </table>
+  </div>
+  <p class="muted small">Green skills = candidate has it · red skills = missing. A candidate can only be "Selected" after an interview is scheduled (database trigger rule).</p>
+</div>
+{% endblock %}

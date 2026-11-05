@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Recruiter Panel · Smart Hire AI{% endblock %}
+{% block content %}
+<div class="row between" style="margin-bottom:18px">
+  <div>
+    <h1>{{ company.name }}</h1>
+    <div class="muted">{{ company.industry }} · {{ company.location }}</div>
+  </div>
+  <a class="btn orange" href="{{ url_for('post_job') }}">+ Post a new job</a>
+</div>
+
+<div class="card">
+  <h2>Our jobs ({{ jobs|length }})</h2>
+  <div class="scroll">
+  <table>
+    <tr><th>Job</th><th>Location</th><th>Salary</th><th>Skills needed</th><th>Applicants</th><th>Status</th><th></th></tr>
+    {% for j in jobs %}
+    <tr>
+      <td><a href="{{ url_for('job_detail', job_id=j.job_id) }}">{{ j.title }}</a></td>
+      <td>{{ j.location }}</td>
+      <td>₹{{ j.salary_lpa|float|round(1) }} LPA</td>
+      <td>{% for s in (j.required_skills or '').split(', ') %}<span class="chip">{{ s }}</span>{% endfor %}</td>
+      <td>{{ j.applicants }}</td>
+      <td><span class="badge {{ j.status }}">{{ j.status }}</span></td>
+      <td style="white-space:nowrap">
+        <a class="btn small" href="{{ url_for('job_candidates', job_id=j.job_id) }}">Ranked candidates</a>
+        <form method="post" action="{{ url_for('toggle_job', job_id=j.job_id) }}" style="display:inline">
+          <button class="btn ghost small" type="submit">{{ 'Close' if j.status == 'open' else 'Reopen' }}</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}<tr><td colspan="7" class="muted">No jobs yet. Post your first job.</td></tr>{% endfor %}
+  </table>
+  </div>
+</div>
+{% endblock %}
